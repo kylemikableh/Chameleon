@@ -23,6 +23,8 @@ void setup()
   pinMode(SOLENOID_4_PIN, OUTPUT);
   pinMode(SOLENOID_5_PIN, OUTPUT);
   pinMode(SOLENOID_6_PIN, OUTPUT);
+
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop()
@@ -34,16 +36,22 @@ void loop()
     int inByte1 = Serial.read(); // read the first byte
     Serial.print("RECIEVED ");
     Serial.println(inByte1); // print the variable inByte1 to the serial monitor
+    if(inByte1 == 1)
+    {
+      digitalWrite(LED_BUILTIN, HIGH);
+      delay(500);
+      digitalWrite(LED_BUILTIN, LOW);
+    }
     //we will also have to be reading the duration(note lenghts here)
 
     //Here we will have to assign the serial output variables to solenoids and dispatch
   }
-  else
-  {
-    //Did not recieve serial, panic!  
-    Serial.println("Not recieving serial signal. Will retry in 5 seconds...");
-    delay(5000);
-  }
+//  else
+//  {
+//    //Did not recieve serial, panic!  
+//    Serial.println("Not recieving serial signal. Will retry in 5 seconds...");
+//    delay(5000);
+//  }
 }
 
 /**
