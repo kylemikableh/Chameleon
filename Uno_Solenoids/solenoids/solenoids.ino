@@ -4,10 +4,10 @@
  * 11/30/2020
  */
 
-#define SOLENOID_1_PIN 8
-#define SOLENOID_2_PIN 9
-#define SOLENOID_3_PIN 10
-#define SOLENOID_4_PIN 11
+#define SOLENOID_1_PIN 4
+#define SOLENOID_2_PIN 5
+#define SOLENOID_3_PIN 6
+#define SOLENOID_4_PIN 7
 #define SOLENOID_5_PIN 12
 #define SOLENOID_6_PIN 13
 
