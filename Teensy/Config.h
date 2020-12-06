@@ -32,6 +32,7 @@
 
 #define I2C_SCL 19
 #define I2C_SDA 18
+#define I2C_ADDR 0x48
 
 #define UART_TX 20
 #define UART_RX 21
