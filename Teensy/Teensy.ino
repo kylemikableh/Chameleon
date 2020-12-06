@@ -4,6 +4,7 @@
 //
 
 #include "Config.h"
+#include "PID.h"
 #include <Wire.h>
 
 int note = -1;
@@ -15,8 +16,6 @@ void setup() {
     HW_SERIAL.begin(9600);
     Wire.begin();
 
-    pinMode(STRING1_PWM, OUTPUT);
-    pinMode(STRING1_DIR, OUTPUT);
     configureADS();
 }
 
@@ -32,7 +31,6 @@ void loop() {
             header = true;
         }
     }
-
 }
 
 void determinePitch(){
