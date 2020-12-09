@@ -5,57 +5,60 @@
 
 #include "Config.h"
 #include "PID.h"
+#include "Pickup.h"
 #include <Wire.h>
 
 int note = -1;
-bool header = true;
+int content = 0;
+bool tune = false;
 unsigned int notes[7];
+PIDMotor motor1;
+ADS pickup_ic;
 
 void setup() {
     Serial.begin(115200);
     HW_SERIAL.begin(9600);
     Wire.begin();
 
-    configureADS();
+    pickup_ic = ADS(); // Configures IC if necessary
+    motor1 = PIDMotor(1);
+    // TODO: Set PID
 }
 
 void loop() {
-    // UART from Arduino - Send string number then frequency
+    // UART from Arduino - Send operation command, then string number, then frequency
+    // Use this to determine if we start tuning or go direct to note
     if (HW_SERIAL.available() > 0) {
         int incoming = HW_SERIAL.read();
-        if (header) {
+        if (content == 0) {
+            tune = false;
+            if (incoming == "TUNE") {
+                tune = true;
+            }
+        } else if (content == 1) {
             note = incoming - 1;
-            header = false;
+            content++;
         } else {
             notes[note] = incoming;
-            header = true;
+            content = 0;
         }
+    }
+
+    // If pickup is in listening state, sample the frequency
+    if (pickup_ic.isListening()) {
+        pickup_ic.sample();
+    }
+
+    // When running PID
+    if (!motor1.targetReached()) {
+        motor1.process(pickup_ic);
+    } else {
+        pickup_ic.stopListening();
+        HW_SERIAL.write("TUNE COMPLETE");
     }
 }
 
-void determinePitch(){
-    // Determine string frequency
-}
-
-void configureADS() {
-    // I2C Interface
-    Wire.beginTransmission(I2C_ADDR);
-    Wire.write(0x01); // Register Address
-    Wire.write(0x85); // MSB
-    Wire.write(0xE3); // LSB
-    Wire.endTransmission();
-}
-
-bool checkADSConfig() {
-    // I2C Interface - check config
-    Wire.beginTransmission(I2C_ADDR);
-    Wire.write(0x01); // Register Address
-    Wire.requestFrom(I2C_ADDR, 2);
-    byte msb = Wire.read();
-    byte lsb = Wire.read();
-    Wire.endTransmission();
-
-    uint16_t config = ((msb << 8) | lsb);
-    uint16_t expected_data_rate = 0xE0;
-    return ((config & expected_data_rate) == expected_data_rate);
+void startTuning(PIDMotor motor, int frequency) {
+    motor.setTarget(frequency);
+    pickup_ic.startListening();
 }

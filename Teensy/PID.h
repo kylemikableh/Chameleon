@@ -10,6 +10,7 @@
 #define FREQ_DEV 5
 
 #include "Config.h"
+#include "Pickup.h"
 #include <Arduino.h>
 
 class PIDMotor {
@@ -25,18 +26,20 @@ private:
     int dir = 0;
     int target_f = 0;
     int target_deg = 0;
-    double deg_delta = 0;
+    volatile double deg_delta = 0;
+    double last_freq = 0;
     double cumError = 0;
     double prev_error = 0;
     double prev_timestamp = 0;
     double errorRate = 0;
 
     void setEffort(int effort);
+    void encoderISR();
 
 public:
     PIDMotor(int string);
     void setPID(double p, double i, double d, bool freq);
-    void process();
+    void process(ADS pickup);
     void setTarget(int frequency);
     void setSetpoint(double degrees);
     bool targetReached();

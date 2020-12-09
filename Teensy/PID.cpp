@@ -59,6 +59,7 @@ PIDMotor::PIDMotor(int string) {
             // Do nothing
             break;
     }
+    attachInterrupt(pwm, encoderISR, RISING);
 }
 
 void PIDMotor::setPID(double p, double i, double d, bool freq) {
@@ -84,16 +85,17 @@ void PIDMotor::setSetpoint(double degrees) {
 
 bool PIDMotor::targetReached() {
     bool reached = false;
-    int freq = 0; // TODO: Get current frequency
     if (abs(target_deg - deg_delta) < STEADY_STATE_DEV){
         setEffort(0);
         target_deg = 0;
+        deg_delta = 0;
         cumError = 0;
         prev_timestamp = 0;
         reached = true;
-    } else if (abs(target_f - freq) < FREQ_DEV) {
+    } else if (abs(target_f - last_freq) < FREQ_DEV) {
         setEffort(0);
         target_f = 0;
+        last_freq = 0;
         cumError = 0;
         prev_timestamp = 0;
         reached = true;
@@ -118,7 +120,7 @@ void PIDMotor::setEffort(int effort) {
     analogWrite(STRING1_PWM, effort);
 }
 
-void PIDMotor::process() {
+void PIDMotor::process(ADS pickup) {
     unsigned long timestamp = millis();
     unsigned long elapsed_time = timestamp - prev_timestamp;
 
@@ -129,7 +131,8 @@ void PIDMotor::process() {
         p = kp_f;
         i = ki_f;
         d = kd_f;
-        int freq = 0; // TODO: Get current frequency
+        int freq = pickup.getLastSample();
+        last_freq = freq;
         double error = target_f - freq;
     } else {
         p = kp;
@@ -147,4 +150,8 @@ void PIDMotor::process() {
 
     double effort = p * error + i * cumError + d * errorRate;
     setEffort((int) effort);
+}
+
+void PIDMotor::encoderISR() {
+    deg_delta++;  // TODO: Add number of degrees per pulse here
 }
