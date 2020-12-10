@@ -5,6 +5,8 @@
 
 #include "PID.h"
 
+PIDMotor::PIDMotor(){}
+
 PIDMotor::PIDMotor(int string) {
     switch (string){
         case 1:
@@ -59,7 +61,6 @@ PIDMotor::PIDMotor(int string) {
             // Do nothing
             break;
     }
-    attachInterrupt(pwm, encoderISR, RISING);
 }
 
 void PIDMotor::setPID(double p, double i, double d, bool freq) {
@@ -150,8 +151,4 @@ void PIDMotor::process(ADS pickup) {
 
     double effort = p * error + i * cumError + d * errorRate;
     setEffort((int) effort);
-}
-
-void PIDMotor::encoderISR() {
-    deg_delta++;  // TODO: Add number of degrees per pulse here
 }

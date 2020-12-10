@@ -37,6 +37,7 @@ private:
     void encoderISR();
 
 public:
+    PIDMotor();
     PIDMotor(int string);
     void setPID(double p, double i, double d, bool freq);
     void process(ADS pickup);

@@ -11,8 +11,8 @@
 
 class ADS {
 private:
-    listening = false;
-    current_freq = 0;
+    bool listening = false;
+    double current_freq = 0;
 
     void configureADS();
     bool checkADSConfig();

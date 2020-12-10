@@ -19,6 +19,7 @@ void setup() {
     Serial.begin(115200);
     HW_SERIAL.begin(9600);
     Wire.begin();
+    attachInterrupt(STRING1_PWM, encoderISR, RISING);
 
     pickup_ic = ADS(); // Configures IC if necessary
     motor1 = PIDMotor(1);
@@ -56,9 +57,17 @@ void loop() {
         pickup_ic.stopListening();
         HW_SERIAL.write("TUNE COMPLETE");
     }
+
+    // To test that motor go brr
+    //motor1.setEffort(100);
+    //delay(200);
 }
 
 void startTuning(PIDMotor motor, int frequency) {
     motor.setTarget(frequency);
     pickup_ic.startListening();
+}
+
+void encoderISR() {
+    // TODO: Add number of degrees per pulse here
 }
