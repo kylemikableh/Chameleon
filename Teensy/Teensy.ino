@@ -14,12 +14,14 @@ bool tune = false;
 unsigned int notes[7];
 PIDMotor motor1;
 ADS pickup_ic;
+// For counting ticks
+volatile double motor1_count = 0;
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     HW_SERIAL.begin(9600);
     Wire.begin();
-    attachInterrupt(STRING1_PWM, encoderISR, RISING);
+    attachInterrupt(STRING1_ENC, encoderISR1, RISING);
 
     pickup_ic = ADS(); // Configures IC if necessary
     motor1 = PIDMotor(1);
@@ -45,6 +47,20 @@ void loop() {
         }
     }
 
+    // Test and tune motor PID
+    motor1.setSetpoint(360);
+    motor1.process(pickup_ic); // Execute PID loop
+    delay(10);
+    Serial.print(motor1_count);
+    Serial.print('\n');
+    if (motor1_count > 200) { // Assumes 200 ticks per revolution
+      Serial.print("done");
+      Serial.print("\nDegrees: ");
+      Serial.print(motor1_count * 1.8);
+      motor1.setEffort(0); // Stop motor
+      delay(10000);
+    }
+
     // If pickup is in listening state, sample the frequency
     if (pickup_ic.isListening()) {
         pickup_ic.sample();
@@ -68,6 +84,6 @@ void startTuning(PIDMotor motor, int frequency) {
     pickup_ic.startListening();
 }
 
-void encoderISR() {
-    // TODO: Add number of degrees per pulse here
+void encoderISR1() {
+    motor1_count++;
 }

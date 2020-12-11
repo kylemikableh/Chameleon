@@ -15,8 +15,8 @@
 
 class PIDMotor {
 private:
-    double kp = 0;
-    double ki = 0;
+    double kp = -3;
+    double ki = -2;
     double kd = 0;
     double kp_f = 0;
     double ki_f = 0;
@@ -26,14 +26,13 @@ private:
     int dir = 0;
     int target_f = 0;
     int target_deg = 0;
-    volatile double deg_delta = 0;
     double last_freq = 0;
     double cumError = 0;
     double prev_error = 0;
     double prev_timestamp = 0;
     double errorRate = 0;
 
-    void setEffort(int effort);
+    
     void encoderISR();
 
 public:
@@ -44,6 +43,8 @@ public:
     void setTarget(int frequency);
     void setSetpoint(double degrees);
     bool targetReached();
+    double deg_delta = 0;
+    void setEffort(double effort);
 };
 
 #endif //CHAMELEON_PID_H

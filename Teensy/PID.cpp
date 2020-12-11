@@ -104,9 +104,9 @@ bool PIDMotor::targetReached() {
     return reached;
 }
 
-void PIDMotor::setEffort(int effort) {
+void PIDMotor::setEffort(double effort) {
     if (effort > 0) {
-        digitalWrite(STRING1_DIR, HIGH); // TODO: Verify direction is the way we want it
+        digitalWrite(STRING1_DIR, HIGH);
     } else {
         digitalWrite(STRING1_DIR, LOW);
     }
@@ -134,12 +134,13 @@ void PIDMotor::process(ADS pickup) {
         d = kd_f;
         int freq = pickup.getLastSample();
         last_freq = freq;
-        double error = target_f - freq;
+        error = target_f - freq;
     } else {
         p = kp;
         i = ki;
         d = kd;
-        double error = target_deg - deg_delta;
+        error = target_deg - deg_delta;
+        //Serial.print(error);
     }
 
     if (prev_timestamp != 0) {
@@ -150,5 +151,5 @@ void PIDMotor::process(ADS pickup) {
     prev_error = error;
 
     double effort = p * error + i * cumError + d * errorRate;
-    setEffort((int) effort);
+    setEffort(effort);
 }
